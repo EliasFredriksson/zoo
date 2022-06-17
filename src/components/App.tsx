@@ -29,7 +29,8 @@ export default function App() {
         setContext({ ...context });
     };
 
-    const [blobsPos, setBlobPos] = useState<IPos[]>([
+    // ### START POS BLOBS THAT SWIRL AROUND IN THE BACKGROUND ###
+    const blobsPos: IPos[] = [
         {
             x: -100,
             y: -100,
@@ -42,8 +43,10 @@ export default function App() {
             x: -100,
             y: 400,
         },
-    ]);
+    ];
+
     // ### CLEAR ALL INTERVALS WHENEVER WE SWITCH PAGE ###
+    // SYNC after render.
     const location = useLocation();
     useLayoutEffect(() => {
         context.timers.forEach((timer: NodeJS.Timer) => {

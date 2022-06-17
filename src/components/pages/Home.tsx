@@ -1,16 +1,16 @@
 import { useContext, useEffect, useLayoutEffect } from "react";
 import { AppContext, IAppContext } from "../../contexts/AppContext";
-// ### INTERFACES ###
-import IAnimal from "../../interfaces/IAnimal";
 // ### MODELS ###
 import Animal from "../../models/Animal";
 // ### SERVICES ###
 import AnimalsService from "../../services/AnimalsService";
+import LocalStorageService from "../../services/LocalStorageService";
 // ### COMPONENTS ###
 import AnimalCard from "../AnimalCard";
 import Status from "../Status";
 // ### STYLED COMPONENTS ###
 import { StyledAnimals } from "../styledComponents/Animals";
+import { StyledLoader } from "../styledComponents/Loader";
 import { StyledMain } from "../styledComponents/Main";
 
 export default function Home() {
@@ -18,65 +18,70 @@ export default function Home() {
 
     // ### MOUNTED ###
     useEffect(() => {
-        // console.log("HOME MOUNTED");
-        const storedAnimals = getStoredAnimals();
+        const storedAnimals = LocalStorageService.getStoredAnimals();
         if (storedAnimals.length > 0) {
-            context.updateContext({
-                ...context,
-                animals: storedAnimals,
-                headerTitle: "Zoo",
-                isBackButtonVisible: false,
-                wentBack: false,
-            });
+            console.log("FOUND STORED");
+            triggerUpdateContext(storedAnimals);
         } else {
-            fetchAnimals();
+            AnimalsService.getAnimals().then((foundAnimals: Animal[]) => {
+                LocalStorageService.storeAnimals(foundAnimals);
+                triggerUpdateContext(foundAnimals);
+            });
         }
     }, []);
+    // ### INTERVAL FOR FOOD ###
+    // We use LayoutEffect here sence we want it only to start update after render but before it updates.
+    // useEffect is ASYNC and useLayoutEffect is SYNC.
+    useLayoutEffect(() => {
+        if (context.animals.length > 0) {
+            // ### USED TO CALCULATE IF WE NEED TO UPDATE THE CONTEXT OR NOT ###
+            let hungryCountPrevoius = -1;
+            let hungryCount = 0;
+            let animalIsHungry = false;
+            const timer = setInterval(() => {
+                context.animals.forEach((a: Animal) => {
+                    if (a.needsFood()) {
+                        animalIsHungry = true;
+                        hungryCount++;
+                    }
+                });
 
-    // useEffect(()=>{
+                if (animalIsHungry && hungryCount !== hungryCountPrevoius) {
+                    hungryCountPrevoius = hungryCount;
+                    animalIsHungry = false;
+                    triggerUpdateContext(context.animals);
+                }
+                hungryCount = 0;
+            }, 1000);
+            context.addTimer(timer);
+        }
+    }, [context.animals.length]);
 
-    // }, [context])
-
-    function storeAnimals(animals: Animal[]) {
-        localStorage.setItem("animals", JSON.stringify(animals));
-    }
-
-    function getStoredAnimals(): Animal[] {
-        const storedString = localStorage.getItem("animals");
-        if (storedString) {
-            const storedAnimals: IAnimal[] = JSON.parse(storedString);
-            return storedAnimals.map((iAnimal: IAnimal) => {
-                return new Animal(iAnimal);
-            });
-        } else return [];
-    }
-
-    function fetchAnimals() {
-        console.log("\n!!! FETCH OCCURED !!!\n\n");
-        const animalService = new AnimalsService();
-        animalService.getAnimals().then((fetchedAnimals: IAnimal[]) => {
-            const foundAnimals = fetchedAnimals.map((iAnimal: IAnimal) => {
-                return new Animal(iAnimal);
-            });
-            context.updateContext({
-                ...context,
-                animals: foundAnimals,
-                headerTitle: "Home",
-                isBackButtonVisible: false,
-                wentBack: false,
-            });
-            storeAnimals(foundAnimals);
+    // ### TRIGGER A CONTEXT UPDATE ###
+    function triggerUpdateContext(animals: Animal[]) {
+        console.log("LKDSJFSLKDJF");
+        context.updateContext({
+            ...context,
+            animals: animals,
+            headerTitle: "Zoo",
+            isBackButtonVisible: false,
+            wentBack: false,
         });
     }
 
-    return (
-        <StyledMain>
-            <StyledAnimals>
-                {context.animals.map((a: Animal) => {
-                    return <AnimalCard animal={a} key={a.id} />;
-                })}
-            </StyledAnimals>
-            <Status animals={context.animals}></Status>
-        </StyledMain>
-    );
+    let html = <StyledLoader></StyledLoader>;
+    if (context.animals.length > 0) {
+        html = (
+            <>
+                <StyledAnimals>
+                    {context.animals.map((a: Animal) => {
+                        return <AnimalCard animal={a} key={a.id} />;
+                    })}
+                </StyledAnimals>
+                <Status animals={context.animals}></Status>
+            </>
+        );
+    }
+
+    return <StyledMain>{html}</StyledMain>;
 }

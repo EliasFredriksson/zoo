@@ -15,6 +15,9 @@ export default class Animal {
     // --------------------------- ms --- s -- h -- 3 hours
     DEADLINE_TIME_OFFSET: number = 1000 * 60 * 60 * 3;
 
+    // ### FOR TESTING ###
+    // DEADLINE_TIME_OFFSET: number = 1000 * 10;
+
     constructor(animal: IAnimal) {
         this.id = animal.id;
         this.name = animal.name;

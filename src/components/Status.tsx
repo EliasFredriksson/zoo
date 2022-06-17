@@ -1,9 +1,10 @@
 import { AnimatePresence } from "framer-motion";
-import { useContext, useLayoutEffect, useEffect } from "react";
+import { useContext, useEffect } from "react";
 // ### CONTEXT ###
 import { AppContext } from "../contexts/AppContext";
 // ### MODELS ###
 import Animal from "../models/Animal";
+import LocalStorageService from "../services/LocalStorageService";
 // ### STYLED COMPONENTS ###
 import { StyledAnimalStatus } from "./styledComponents/AnimalStatus";
 import { StyledButton } from "./styledComponents/Button";
@@ -25,34 +26,9 @@ export default function Status(props: IStatusProps) {
 
     function handleClick(animal: Animal) {
         animal.feed();
-        localStorage.setItem("animals", JSON.stringify(context.animals));
+        LocalStorageService.storeAnimals(context.animals);
         context.updateContext({ ...context });
     }
-
-    useEffect(() => {
-        // console.log("STATUS MOUNTED");
-        let animalIsHungry = false;
-        if (context.animals.length > 0) {
-            const timer = setInterval(() => {
-                context.animals.forEach((a: Animal) => {
-                    if (a.needsFood()) animalIsHungry = true;
-                });
-                if (animalIsHungry) {
-                    animalIsHungry = false;
-                    context.updateContext({
-                        ...context,
-                        // BAD SOLUTION. I assume the fact that this runs when the Home.tsx
-                        // components gets the list of animals (Aka within the same life
-                        // cycle), which then ignores our previous headerTitle when we set it to "Zoo"
-                        headerTitle: "Zoo",
-                        wentBack: false,
-                        isBackButtonVisible: false,
-                    });
-                }
-            }, 1000);
-            context.addTimer(timer);
-        }
-    }, [context.animals.length]);
 
     let html = <StyledLoader></StyledLoader>;
     if (animalsToFeed.length > 0) {
@@ -129,7 +105,6 @@ export default function Status(props: IStatusProps) {
             </StyledSpan>
         );
     }
-
     return (
         <AnimatePresence exitBeforeEnter>
             <StyledStatus

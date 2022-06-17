@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { AppContext, IAppContext } from "../../contexts/AppContext";
 // ### MODELS ###
 import Animal from "../../models/Animal";
+import LocalStorageService from "../../services/LocalStorageService";
 // ### STYLED COMPONENTS ###
 import { StyledAnimal } from "../styledComponents/Animal";
 import { StyledButton } from "../styledComponents/Button";
@@ -24,13 +25,7 @@ export default function SingleAnimal() {
 
     // ### WHENEVER THE ANIMAL LIST CHANGES ###
     useEffect(() => {
-        console.log("SINGLE PAGE MOUNTED");
-
-        context.updateContext({
-            ...context,
-            isBackButtonVisible: true,
-            headerTitle: "Single Animal",
-        });
+        triggerUpdateContext("Single Animal");
         if (context.animals.length > 0) {
             const assumedId = params.id ? params.id : null;
             if (assumedId) {
@@ -40,11 +35,7 @@ export default function SingleAnimal() {
                 if (animal.length > 0) {
                     setCurrentAnimal(animal[0]);
                     if (animal[0].isFed) getFoodTime(animal[0]);
-                    context.updateContext({
-                        ...context,
-                        isBackButtonVisible: true,
-                        headerTitle: `Hur mår ${animal[0].name}?`,
-                    });
+                    triggerUpdateContext(`Hur mår ${animal[0].name}?`);
                 }
             }
         } else {
@@ -52,6 +43,16 @@ export default function SingleAnimal() {
         }
     }, []);
 
+    // ### TRIGGER A CONTEXT UPDATE ###
+    function triggerUpdateContext(headerTitle: string) {
+        context.updateContext({
+            ...context,
+            isBackButtonVisible: true,
+            headerTitle: headerTitle,
+        });
+    }
+
+    // ### FOOD TIME STRING ###
     function getFoodTime(animal: Animal) {
         const timer = setInterval(() => {
             foodTimer(animal, timer);
@@ -67,7 +68,7 @@ export default function SingleAnimal() {
                 setTimeToFeed("");
                 animal.isFed = false;
                 setCurrentAnimal(animal);
-                storeAnimals(context.animals);
+                LocalStorageService.storeAnimals(context.animals);
             } else {
                 let whenToEat = Date.now() - animal.DEADLINE_TIME_OFFSET;
                 const diff = new Date(animal.lastFed.getTime() - whenToEat);
@@ -85,22 +86,11 @@ export default function SingleAnimal() {
         }
     }
 
-    // let date1 = new Date();
-    // let date2 = new Date();
-
-    // let timeDifference = Math.abs(date1.getTime() - date2.getTime());
-    // let newDate = new Date(timeDifference)
-
     // ### HANDLE IMG ERROR ###
     const imgRef = useRef<HTMLImageElement>(null);
     function handleError() {
         const { current } = imgRef;
         if (current) current.src = "/missing_animal_image.png";
-    }
-
-    // ### STORA ANIMALS TO LOCAL STORAGE ###
-    function storeAnimals(animals: Animal[]) {
-        localStorage.setItem("animals", JSON.stringify(animals));
     }
 
     let html = <StyledLoader></StyledLoader>;
@@ -241,7 +231,9 @@ export default function SingleAnimal() {
                                             context.updateContext({
                                                 ...context,
                                             });
-                                            storeAnimals(context.animals);
+                                            LocalStorageService.storeAnimals(
+                                                context.animals
+                                            );
                                         }}
                                     >
                                         <StyledSpan>ÄT</StyledSpan>
