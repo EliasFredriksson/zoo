@@ -265,7 +265,8 @@ export default function SingleAnimal() {
     } else {
         html = (
             <StyledSpan fontSize="2rem" color="white">
-                Invalid context
+                Invalid Context. Du behöver inte ladda om sidan för att se när
+                djuret behöver matas igen.
             </StyledSpan>
         );
     }
