@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import styled from "styled-components";
 import { font } from "./utils/styles";
 
@@ -13,6 +12,9 @@ export interface IStyledSpanProps {
     textShadow?: string;
     height?: string;
     width?: string;
+    flexShrink?: string;
+    flexBasis?: string;
+    flexGrow?: string;
 }
 
 export const StyledSpan = styled.span`
@@ -26,4 +28,11 @@ export const StyledSpan = styled.span`
     text-decoration: ${(props: IStyledSpanProps) =>
         props.textDecoration || "none"};
     text-shadow: ${(props: IStyledSpanProps) => props.textShadow || "none"};
+
+    flex-shrink: ${(props: IStyledSpanProps) => props.flexShrink || "auto"};
+    flex-basis: ${(props: IStyledSpanProps) => props.flexBasis || "auto"};
+    flex-grow: ${(props: IStyledSpanProps) => props.flexGrow || "auto"};
+
+    height: ${(props: IStyledSpanProps) => props.height || "auto"};
+    width: ${(props: IStyledSpanProps) => props.width || "auto"};
 `;

@@ -1,6 +1,7 @@
 import { AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
+// ### CONTEXT ###
 import {
     AppContext,
     AppContextStart,
@@ -23,6 +24,10 @@ export default function App() {
     context.updateContext = (newContext: IAppContext) => {
         setContext(newContext);
     };
+    context.addTimer = (timer: NodeJS.Timer) => {
+        context.timers.push(timer);
+        setContext({ ...context });
+    };
 
     const [blobsPos, setBlobPos] = useState<IPos[]>([
         {
@@ -38,7 +43,14 @@ export default function App() {
             y: 400,
         },
     ]);
+    // ### CLEAR ALL INTERVALS WHENEVER WE SWITCH PAGE ###
     const location = useLocation();
+    useLayoutEffect(() => {
+        context.timers.forEach((timer: NodeJS.Timer) => {
+            clearInterval(timer);
+        });
+        context.updateContext({ ...context, timers: [] });
+    }, [location.pathname]);
 
     return (
         <AppContext.Provider value={context}>

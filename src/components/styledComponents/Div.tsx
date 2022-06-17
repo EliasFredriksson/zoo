@@ -8,6 +8,7 @@ export interface IStyledDivProps {
     flexGrow?: string;
     flexShrink?: string;
     flexBasis?: string;
+    flexWrap?: string;
     gap?: string;
     padding?: string;
     margin?: string;
@@ -22,7 +23,7 @@ export interface IStyledDivProps {
 }
 
 export const StyledDiv = styled.div`
-    position: ${(props: IStyledDivProps) => props.position || "auto"};
+    position: ${(props: IStyledDivProps) => props.position || "relative"};
     width: ${(props: IStyledDivProps) => props.width || "auto"};
     height: ${(props: IStyledDivProps) => props.height || "auto"};
     display: ${(props: IStyledDivProps) => props.display || "flex"};
@@ -32,6 +33,7 @@ export const StyledDiv = styled.div`
     align-items: ${(props: IStyledDivProps) => props.alignItems || "center"};
     flex-grow: ${(props: IStyledDivProps) => props.flexGrow || "auto"};
     flex-shrink: ${(props: IStyledDivProps) => props.flexShrink || "auto"};
+    flex-wrap: ${(props: IStyledDivProps) => props.flexWrap || "nowrap"};
 
     gap: ${(props: IStyledDivProps) => props.gap || "0px"};
     padding: ${(props: IStyledDivProps) => props.padding || "0px"};
@@ -44,5 +46,20 @@ export const StyledDiv = styled.div`
     overflow: ${(props: IStyledDivProps) => props.overflow || "auto"};
     & > * {
         flex-basis: ${(props: IStyledDivProps) => props.flexBasis || "auto"};
+    }
+
+    /* width */
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+    /* Track */
+    &::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 5px;
+    }
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 5px;
     }
 `;

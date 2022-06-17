@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useLayoutEffect } from "react";
 import { AppContext, IAppContext } from "../../contexts/AppContext";
 // ### INTERFACES ###
 import IAnimal from "../../interfaces/IAnimal";
@@ -8,22 +8,23 @@ import Animal from "../../models/Animal";
 import AnimalsService from "../../services/AnimalsService";
 // ### COMPONENTS ###
 import AnimalCard from "../AnimalCard";
+import Status from "../Status";
 // ### STYLED COMPONENTS ###
 import { StyledAnimals } from "../styledComponents/Animals";
 import { StyledMain } from "../styledComponents/Main";
-import { StyledStatus } from "../styledComponents/Status";
 
 export default function Home() {
     const context: IAppContext = useContext(AppContext);
 
     // ### MOUNTED ###
     useEffect(() => {
+        // console.log("HOME MOUNTED");
         const storedAnimals = getStoredAnimals();
         if (storedAnimals.length > 0) {
             context.updateContext({
                 ...context,
                 animals: storedAnimals,
-                headerTitle: "Home",
+                headerTitle: "Zoo",
                 isBackButtonVisible: false,
                 wentBack: false,
             });
@@ -31,6 +32,10 @@ export default function Home() {
             fetchAnimals();
         }
     }, []);
+
+    // useEffect(()=>{
+
+    // }, [context])
 
     function storeAnimals(animals: Animal[]) {
         localStorage.setItem("animals", JSON.stringify(animals));
@@ -71,6 +76,7 @@ export default function Home() {
                     return <AnimalCard animal={a} key={a.id} />;
                 })}
             </StyledAnimals>
+            <Status animals={context.animals}></Status>
         </StyledMain>
     );
 }

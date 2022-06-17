@@ -29,4 +29,22 @@ body {
         flex-direction: column;
         // overflow-x: hidden;
     }
+
+    // ### SCROLLBAR
+    /* width */
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+    /* Track */
+    &::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+    /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 }

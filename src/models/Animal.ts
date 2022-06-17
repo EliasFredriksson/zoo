@@ -12,6 +12,9 @@ export default class Animal {
     isFed: boolean = false;
     lastFed: Date | null = null;
 
+    // --------------------------- ms --- s -- h -- 3 hours
+    DEADLINE_TIME_OFFSET: number = 1000 * 60 * 60 * 3;
+
     constructor(animal: IAnimal) {
         this.id = animal.id;
         this.name = animal.name;
@@ -27,9 +30,9 @@ export default class Animal {
 
     needsFood(): boolean {
         if (this.lastFed) {
-            const differenceInHours =
-                Math.abs(new Date().getTime() - this.lastFed.getTime()) / 36e5;
-            if (differenceInHours >= 4) {
+            let whenToEat = Date.now() - this.DEADLINE_TIME_OFFSET;
+            if (this.lastFed.getTime() < whenToEat) {
+                this.isFed = false;
                 return true;
             }
         }
@@ -38,5 +41,6 @@ export default class Animal {
 
     feed(): void {
         this.lastFed = new Date();
+        this.isFed = true;
     }
 }

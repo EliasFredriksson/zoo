@@ -6,6 +6,8 @@ export interface IAppContext {
     isBackButtonVisible: boolean;
     animals: Animal[];
     wentBack: boolean;
+    timers: NodeJS.Timer[];
+    addTimer(timer: NodeJS.Timer): void;
     updateContext(context: IAppContext): void;
 }
 
@@ -14,6 +16,8 @@ export const AppContextStart: IAppContext = {
     animals: [],
     isBackButtonVisible: false,
     wentBack: false,
+    timers: [],
+    addTimer: (timer: NodeJS.Timer) => {},
     updateContext: (context: IAppContext) => {},
 };
 

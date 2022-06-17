@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { breakpoint } from "./utils/styles";
 
 interface IStyledMainProps {
     background?: string;
@@ -13,4 +14,9 @@ export const StyledMain = styled.main`
     justify-content: center;
     align-items: center;
     z-index: 1;
+
+    @media screen and (min-width: ${breakpoint.tablet}px) {
+        flex-direction: row;
+        align-items: flex-start;
+    }
 `;

@@ -12,9 +12,6 @@ export const StyledHeader = styled.header`
         text-decoration: none;
     }
 
-    & h1 {
-        text-align: right;
-        font-size: 3rem;
-        color: white;
+    & span {
     }
 `;

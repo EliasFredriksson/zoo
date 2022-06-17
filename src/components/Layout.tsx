@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useContext, useEffect, useLayoutEffect } from "react";
 // ### FRAMER MOTION ###
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 // ### COMPONENTS ###
 import Header from "./Header";
 import Footer from "./Footer";
@@ -46,9 +46,6 @@ const animationConfigReverse = {
 export default function Layout() {
     const context = useContext(AppContext);
 
-    // useEffect(() => {
-    //     console.log("CONTEXT: ", context);
-    // }, [context.animals.length]);
     return (
         <StyledLayout
             variants={

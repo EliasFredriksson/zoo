@@ -18,7 +18,7 @@ export default function Footer() {
                 }}
                 transition={{
                     type: "tween",
-                    delay: 0.2,
+                    delay: 0.5,
                     duration: 0.5,
                     ease: "easeInOut",
                 }}

@@ -16,5 +16,7 @@ export const StyledButton = styled(motion.button)`
         props.borderRadius || "5px"};
     padding: ${(props: IStyledButtonProps) => props.padding || "10px"};
     margin: ${(props: IStyledButtonProps) => props.margin || "none"};
+    height: ${(props: IStyledButtonProps) => props.height || "auto"};
+    width: ${(props: IStyledButtonProps) => props.width || "auto"};
     cursor: pointer;
 `;

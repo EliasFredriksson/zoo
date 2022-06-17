@@ -1,5 +1,7 @@
-import { ChangeEvent, MouseEvent, useRef, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+// ### CONTEXT ###
+import { AppContext } from "../contexts/AppContext";
 // ### MODELS ###
 import Animal from "../models/Animal";
 // ### STYLED COMPONENTS ###
@@ -27,6 +29,12 @@ export default function AnimalCard(props: IAnimalCardProps) {
             style={{ textDecoration: "none" }}
         >
             <StyledCard
+                whileTap={{
+                    scale: 0.9,
+                    transition: {
+                        duration: 0.1,
+                    },
+                }}
                 whileInView={{
                     opacity: 1,
                     y: 0,
@@ -51,7 +59,6 @@ export default function AnimalCard(props: IAnimalCardProps) {
                 }}
             >
                 <StyledDiv
-                    display="flex"
                     flexDirection="column"
                     alignItems="stretch"
                     background="white"

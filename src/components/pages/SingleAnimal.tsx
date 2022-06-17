@@ -16,13 +16,16 @@ import { StyledSpan } from "../styledComponents/Span";
 
 export default function SingleAnimal() {
     // ### STATES ###
-    const [currentAnimal, setCurrentAnimal] = useState<Animal[] | null>(null);
+    const [currentAnimal, setCurrentAnimal] = useState<Animal | null>(null);
+    const [timeToFeed, setTimeToFeed] = useState("");
     // ### HOOKS ###
     const params = useParams();
     const context: IAppContext = useContext(AppContext);
 
     // ### WHENEVER THE ANIMAL LIST CHANGES ###
     useEffect(() => {
+        console.log("SINGLE PAGE MOUNTED");
+
         context.updateContext({
             ...context,
             isBackButtonVisible: true,
@@ -35,7 +38,8 @@ export default function SingleAnimal() {
                     (a: Animal) => a.id === parseInt(assumedId)
                 );
                 if (animal.length > 0) {
-                    setCurrentAnimal(animal);
+                    setCurrentAnimal(animal[0]);
+                    if (animal[0].isFed) getFoodTime(animal[0]);
                     context.updateContext({
                         ...context,
                         isBackButtonVisible: true,
@@ -46,7 +50,46 @@ export default function SingleAnimal() {
         } else {
             setCurrentAnimal(null);
         }
-    }, [context.animals]);
+    }, []);
+
+    function getFoodTime(animal: Animal) {
+        const timer = setInterval(() => {
+            foodTimer(animal, timer);
+        }, 1000);
+        foodTimer(animal, timer);
+        context.addTimer(timer);
+    }
+    function foodTimer(animal: Animal, timer: NodeJS.Timer) {
+        if (animal && animal.lastFed) {
+            console.log("TICK");
+            if (animal.needsFood()) {
+                clearInterval(timer);
+                setTimeToFeed("");
+                animal.isFed = false;
+                setCurrentAnimal(animal);
+                storeAnimals(context.animals);
+            } else {
+                let whenToEat = Date.now() - animal.DEADLINE_TIME_OFFSET;
+                const diff = new Date(animal.lastFed.getTime() - whenToEat);
+                const s = diff.getSeconds();
+                const m = diff.getMinutes();
+                const h = diff.getHours() - 1;
+                const timeString =
+                    ("0" + h).substr(-2) +
+                    ":" +
+                    ("0" + m).substr(-2) +
+                    ":" +
+                    ("0" + s).substr(-2);
+                setTimeToFeed(timeString);
+            }
+        }
+    }
+
+    // let date1 = new Date();
+    // let date2 = new Date();
+
+    // let timeDifference = Math.abs(date1.getTime() - date2.getTime());
+    // let newDate = new Date(timeDifference)
 
     // ### HANDLE IMG ERROR ###
     const imgRef = useRef<HTMLImageElement>(null);
@@ -62,128 +105,163 @@ export default function SingleAnimal() {
 
     let html = <StyledLoader></StyledLoader>;
     if (currentAnimal) {
-        if (currentAnimal.length === 0) {
-            html = <h1>No animal found with id: {params.id}</h1>;
-        } else {
-            const animal = currentAnimal[0];
-            html = (
-                <StyledAnimal>
+        html = (
+            <StyledAnimal>
+                <StyledDiv
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="stretch"
+                >
+                    <StyledDiv justifyContent="space-between">
+                        <StyledSpan
+                            fontSize="3rem"
+                            fontFamily="Brush Script MT"
+                        >
+                            {currentAnimal.name}
+                        </StyledSpan>
+                        <StyledDiv gap="1rem" padding="5px">
+                            <StyledSpan
+                                color="white"
+                                textShadow="0px 0px 5px black"
+                            >
+                                Latin:
+                            </StyledSpan>
+                            <StyledSpan>{currentAnimal.latinName}</StyledSpan>
+                        </StyledDiv>
+                    </StyledDiv>
                     <StyledDiv
-                        display="flex"
+                        background="rgba(0,0,0,0.2)"
+                        padding="20px"
+                        borderRadius="10px"
                         flexDirection="column"
                         justifyContent="space-between"
                         alignItems="stretch"
+                        flexGrow="1"
+                        boxShadow="0px 0px 10px 0px rgba(0,0,0,0.7) inset"
+                        gap="1rem"
                     >
-                        <StyledDiv width="100%" justifyContent="space-between">
-                            <StyledSpan
-                                fontSize="3rem"
-                                fontFamily="Brush Script MT"
-                            >
-                                {animal.name}
-                            </StyledSpan>
-                            <StyledSpan>{animal.latinName}</StyledSpan>
-                        </StyledDiv>
                         <StyledDiv
-                            background="rgba(0,0,0,0.2)"
-                            padding="20px"
-                            borderRadius="10px"
+                            display="flex"
+                            justifyContent="space-between"
+                            borderRadius="5px"
                         >
-                            <StyledSpan fontSize="1rem" textAlign="left">
-                                {animal.longDescription}
-                            </StyledSpan>
+                            <StyledDiv gap="1rem" padding="5px">
+                                <StyledSpan
+                                    color="white"
+                                    textShadow="0px 0px 4px black"
+                                >
+                                    Medicin:
+                                </StyledSpan>
+                                <StyledSpan>
+                                    {currentAnimal.medicine}
+                                </StyledSpan>
+                            </StyledDiv>
+                            <StyledDiv gap="1rem" padding="5px">
+                                <StyledSpan
+                                    color="white"
+                                    textShadow="0px 0px 4px black"
+                                >
+                                    Född:
+                                </StyledSpan>
+                                <StyledSpan>
+                                    {currentAnimal.yearOfBirth}
+                                </StyledSpan>
+                            </StyledDiv>
                         </StyledDiv>
+                        <StyledSpan fontSize="1rem" textAlign="left">
+                            {currentAnimal.longDescription}
+                        </StyledSpan>
                     </StyledDiv>
-                    <StyledDiv
-                        display="flex"
-                        flexDirection="column"
-                        justifyContent="start"
-                        border="2px solid black"
-                        flexShrink="0"
-                    >
-                        <StyledSpan>Medicin: {animal.medicine}</StyledSpan>
-                        <StyledSpan>Född: {animal.yearOfBirth}</StyledSpan>
-                    </StyledDiv>
-                    <StyledDiv
-                        display="flex"
-                        flexDirection="column"
-                        alignItems="stretch"
-                        justifyContent="start"
-                        flexShrink="0"
-                        gap="10px"
-                        overflow="hidden"
-                    >
-                        <StyledImage
-                            ref={imgRef}
-                            height="300px"
-                            width="300px"
-                            src={animal.imageUrl}
-                            onError={handleError}
-                            borderRadius="10px"
-                        ></StyledImage>
-                        <AnimatePresence exitBeforeEnter>
-                            <motion.div
-                                style={{
-                                    overflow: "hidden",
-                                    flexGrow: 1,
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                }}
-                                key={`${animal.needsFood()}`}
-                                initial={{
-                                    opacity: 0,
-                                    scale: 0,
-                                }}
-                                animate={{
-                                    opacity: 1,
-                                    scale: 1,
-                                }}
-                                exit={{
-                                    opacity: 0,
-                                    scale: 0,
-                                }}
-                            >
-                                {animal.needsFood() ? (
-                                    <>
-                                        <StyledSpan
-                                            fontSize="1.4rem"
-                                            color="red"
-                                            textShadow="0px 0px 10px black"
-                                        >
-                                            Hungrig!
-                                        </StyledSpan>
-                                        <StyledButton
-                                            whileHover={{
-                                                scale: 1.1,
-                                            }}
-                                            padding="10px"
-                                            margin="0px 0px 0px 20px"
-                                            exit={{
-                                                scale: 0,
-                                                opacity: 1,
-                                            }}
-                                            onClick={() => {
-                                                animal.feed();
-                                                context.updateContext({
-                                                    ...context,
-                                                });
-                                                storeAnimals(context.animals);
-                                            }}
-                                        >
-                                            <StyledSpan>ÄT</StyledSpan>
-                                        </StyledButton>
-                                    </>
-                                ) : (
+                </StyledDiv>
+
+                <StyledDiv
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="stretch"
+                    justifyContent="center"
+                    flexShrink="0"
+                    gap="10px"
+                    overflow="hidden"
+                >
+                    <StyledImage
+                        ref={imgRef}
+                        height="300px"
+                        width="300px"
+                        src={currentAnimal.imageUrl}
+                        onError={handleError}
+                        borderRadius="10px"
+                    ></StyledImage>
+
+                    <AnimatePresence exitBeforeEnter>
+                        <motion.div
+                            style={{
+                                overflow: "hidden",
+                                flexGrow: 1,
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                height: "70px",
+                            }}
+                            key={`${currentAnimal.needsFood()}`}
+                            initial={{
+                                opacity: 0,
+                                scale: 0,
+                            }}
+                            animate={{
+                                opacity: 1,
+                                scale: 1,
+                            }}
+                            exit={{
+                                opacity: 0,
+                                scale: 0,
+                            }}
+                        >
+                            {currentAnimal.needsFood() ? (
+                                <>
+                                    <StyledSpan
+                                        fontSize="1.4rem"
+                                        color="red"
+                                        textShadow="0px 0px 10px black"
+                                    >
+                                        Hungrig!
+                                    </StyledSpan>
+                                    <StyledButton
+                                        whileHover={{
+                                            scale: 1.1,
+                                        }}
+                                        padding="10px"
+                                        margin="0px 0px 0px 20px"
+                                        exit={{
+                                            scale: 0,
+                                            opacity: 1,
+                                        }}
+                                        onClick={() => {
+                                            currentAnimal.feed();
+                                            getFoodTime(currentAnimal);
+                                            context.updateContext({
+                                                ...context,
+                                            });
+                                            storeAnimals(context.animals);
+                                        }}
+                                    >
+                                        <StyledSpan>ÄT</StyledSpan>
+                                    </StyledButton>
+                                </>
+                            ) : (
+                                <StyledDiv flexDirection="column">
                                     <StyledSpan fontSize="1.4rem" color="green">
                                         Mätt
                                     </StyledSpan>
-                                )}
-                            </motion.div>
-                        </AnimatePresence>
-                    </StyledDiv>
-                </StyledAnimal>
-            );
-        }
+                                    <StyledSpan fontSize="0.8rem" color="black">
+                                        {timeToFeed}
+                                    </StyledSpan>
+                                </StyledDiv>
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
+                </StyledDiv>
+            </StyledAnimal>
+        );
     } else {
         html = (
             <StyledSpan fontSize="2rem" color="white">
